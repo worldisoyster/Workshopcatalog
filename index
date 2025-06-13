@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workshop Artifact Storefront</title>
+    <style>
+        /* ========================================
+           GLOBAL STYLES - RARELY CHANGED
+        ======================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* ========================================
+           HEADER STYLES - RARELY CHANGED
+        ======================================== */
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 60px 20px;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 16px;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            letter-spacing: -1px;
+        }
+
+        .header p {
+            font-size: 1.3rem;
+            color: rgba(255,255,255,0.9);
+            font-weight: 300;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* ========================================
+           SEARCH & FILTER STYLES - RARELY CHANGED
+        ======================================== */
+        .search-section {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .search-controls {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .search-input-container {
+            flex: 1;
+            min-width: 320px;
+            max-width: 500px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 18px 25px 18px 55px;
+            border: 2px solid #e5e7eb;
+            border-radius: 15px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102,126,234,0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            color: #9ca3af;
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .category-select {
+            padding: 18px 25px;
+            border: 2px solid #e5e7eb;
+            border-radius: 15px;
+            background: white;
+            cursor: pointer;
+            font-size: 15px;
+            min-width: 180px;
+            transition: border-color 0.3s ease;
+        }
+
+        .category-select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .add-workshop-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 18px 30px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102,126,234,0.3);
+        }
+
+        .add-workshop-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102,126,234,0.4);
+        }
+
+        /* ========================================
+           CATEGORY PILLS - RARELY CHANGED
+        ======================================== */
+        .category-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 40px;
+            justify-content: center;
+        }
+
+        .category-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .category-btn.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            transform: translateY(-3px);
+        }
+
+        .category-btn:not(.active) {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            backdrop-filter: blur(10px);
+        }
+
+        .category-btn:not(.active):hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        /* ========================================
+           WORKSHOP CARD STYLES - RARELY CHANGED
+        ======================================== */
+        .workshops-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 35px;
+            margin-bottom: 50px;
+        }
+
+        .workshop-card {
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            transition: all 0.4s ease;
+            position: relative;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .workshop-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+        }
+
+        .workshop-featured-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4a 100%);
+            color: #8b5a00;
+            padding: 8px 16px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 700;
+            z-index: 10;
+            box-shadow: 0 4px 15px rgba(255,215,0,0.3);
+        }
+
+        .workshop-header {
+            height: 140px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .workshop-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M30 30c0-11.046-8.954-20-20-20s-20 8.954-20 20 8.954 20 20 20 20-8.954 20-20zm10 0c0-11.046-8.954-20-20-20s-20 8.954-20 20 8.954 20 20 20 20-8.954 20-20z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+        }
+
+        .workshop-icon {
+            font-size: 3.5rem;
+            color: rgba(255,255,255,0.8);
+            z-index: 1;
+        }
+
+        .workshop-content {
+            padding: 30px;
+        }
+
+        .workshop-title-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .workshop-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #1f2937;
+            line-height: 1.3;
+            flex: 1;
+            margin-right: 15px;
+        }
+
+        .difficulty-badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .difficulty-beginner {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .difficulty-intermediate {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .difficulty-advanced {
+            background: #fecaca;
+            color: #991b1b;
+        }
+
+        .workshop-description {
+            color: #6b7280;
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        .workshop-meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .meta-icon {
+            width: 18px;
+            height: 18px;
+            color: #9ca3af;
+        }
+
+        .workshop-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 25px;
+        }
+
+        .workshop-tag {
+            background: #f0f4ff;
+            color: #3b82f6;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .workshop-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 20px;
+            border-top: 1px solid #f3f4f6;
+        }
+
+        .workshop-date {
+            font-size: 13px;
+            color: #9ca3af;
+        }
+
+        .use-workshop-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .use-workshop-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102,126,234,0.3);
+        }
+
+        /* ========================================
+           STATS SECTION - RARELY CHANGED
+        ======================================== */
+        .stats-section {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+        }
+
+        .stat-item {
+            padding: 20px;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        /* ========================================
+           RESPONSIVE DESIGN - RARELY CHANGED
+        ======================================== */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .search-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-input-container {
+                min-width: auto;
+                max-width: none;
+            }
+            
+            .workshops-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .workshop-meta {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ========================================
+           UTILITY CLASSES - RARELY CHANGED
+        ======================================== */
+        .hidden {
+            display: none;
+        }
+
+        .icon {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- ========================================
+             HEADER SECTION - RARELY CHANGED
+        ======================================== -->
+        <header class="header">
+            <h1>Workshop Artifact Storefront</h1>
+            <p>Your curated collection of facilitation masterpieces</p>
+        </header>
+
+        <!-- ========================================
+             SEARCH & FILTER SECTION - RARELY CHANGED
+        ======================================== -->
+        <section class="search-section">
+            <div class="search-controls">
+                <div class="search-input-container">
+                    <svg class="search-icon" viewBox="0 0 24 24">
+                        <path d="M21 21l-4.35-4.35M17 10a7 7 0 11-14 0 7 7 0 0114 0z" stroke="currentColor" stroke-width="2" fill="none"/>
+                    </svg>
+                    <input type="text" class="search-input" placeholder="Search workshops, tags, or descriptions..." id="searchInput">
+                </div>
+                <div class="filter-controls">
+                    <select class="category-select" id="categoryFilter">
+                        <option value="all">All Categories</option>
+                        <option value="process-improvement">Process Improvement</option>
+                        <option value="strategy">Strategy</option>
+                        <option value="team-building">Team Building</option>
+                        <option value="innovation">Innovation</option>
+                    </select>
+                    <button class="add-workshop-btn">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M12 5v14m-7-7h14" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                        Add Workshop
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================
+             CATEGORY FILTERS - RARELY CHANGED
+        ======================================== -->
+        <section class="category-filters" id="categoryFilters">
+            <button class="category-btn active" data-category="all">
+                📚 All Workshops
+            </button>
+            <button class="category-btn" data-category="process-improvement">
+                🎯 Process Improvement
+            </button>
+            <button class="category-btn" data-category="strategy">
+                📊 Strategy
+            </button>
+            <button class="category-btn" data-category="team-building">
+                👥 Team Building
+            </button>
+            <button class="category-btn" data-category="innovation">
+                💡 Innovation
+            </button>
+        </section>
+
+        <!-- ========================================
+             WORKSHOPS GRID - POPULATED BY JAVASCRIPT
+        ======================================== -->
+        <section class="workshops-grid" id="workshopsGrid">
+            <!-- Workshop cards will be inserted here by JavaScript -->
+        </section>
+
+        <!-- ========================================
+             STATS SECTION - RARELY CHANGED
+        ======================================== -->
+        <section class="stats-section">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number" id="totalWorkshops">0</div>
+                    <div class="stat-label">Total Workshops</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="featuredWorkshops">0</div>
+                    <div class="stat-label">Featured</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="totalCategories">4</div>
+                    <div class="stat-label">Categories</div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        /* ========================================
+           WORKSHOP DATA - CLAUDE UPDATES THIS SECTION
+        ======================================== */
+        const WORKSHOPS = [
+            {
+                id: 1,
+                title: "Kaizen Email Process Mapping",
+                description: "Visual process mapping workshop to simplify email creation workflows using continuous improvement principles for marketing teams.",
+                duration: "2 hours",
+                participants: "6-8 team members",
+                category: "process-improvement",
+                tags: ["kaizen", "email", "process-mapping", "burger-king", "continuous-improvement"],
+                materials: "Sticky notes, markers, whiteboard, timer",
+                objectives: "Map current email process, identify pain points, implement quick wins",
+                difficulty: "intermediate",
+                dateCreated: "2024-06-12",
+                lastUpdated: "2024-06-12",
+                featured: true,
+                icon: "🎯"
+            },
+            {
+                id: 2,
+                title: "Clues You Can Use: Personalization Lab",
+                description: "Interactive brand personalization workshop using clue-based strategy development and cohort scenario analysis for targeted marketing.",
+                duration: "2.5 hours",
+                participants: "19 brand teams (5-6 per team)",
+                category: "strategy",
+                tags: ["personalization", "brand-strategy", "cohort-analysis", "clue-cards", "customer-insights"],
+                materials: "Game boards, clue card packets, cohort scenarios, insights printouts, sticky notes, pens/markers",
+                objectives: "Brainstorm personalization clues, build personalized moment strategies, create activation triggers",
+                difficulty: "intermediate",
+                dateCreated: "2024-06-12",
+                lastUpdated: "2024-06-12",
+                featured: false,
+                icon: "🔍"
+            },
+            {
+                id: 3,
+                title: "Innovation Sprint Catalyst",
+                description: "Rapid ideation workshop for breakthrough product concepts using human-centered design methodology and rapid prototyping techniques.",
+                duration: "4 hours",
+                participants: "8-12 cross-functional team members",
+                category: "innovation",
+                tags: ["design-thinking", "ideation", "user-centered", "rapid-prototyping", "innovation"],
+                materials: "Post-its, sharpies, dot stickers, paper, scissors, tape, timer",
+                objectives: "Generate 50+ ideas, build 3 prototypes, test with users, prioritize concepts",
+                difficulty: "advanced",
+                dateCreated: "2024-06-10",
+                lastUpdated: "2024-06-11",
+                featured: true,
+                icon: "💡"
+            }
+        ];
+        /* ========================================
+           END WORKSHOP DATA - CLAUDE UPDATES ABOVE
+        ======================================== */
+
+        /* ========================================
+           CORE JAVASCRIPT FUNCTIONS - RARELY CHANGED
+        ======================================== */
+        
+        // Global variables for filtering
+        let currentSearchTerm = '';
+        let currentCategory = 'all';
+
+        // Initialize the application
+        function initializeApp() {
+            renderWorkshops();
+            updateStats();
+            setupEventListeners();
+        }
+
+        // Setup all event listeners
+        function setupEventListeners() {
+            // Search input
+            document.getElementById('searchInput').addEventListener('input', handleSearch);
+            
+            // Category filter dropdown
+            document.getElementById('categoryFilter').addEventListener('change', handleCategoryFilter);
+            
+            // Category filter buttons
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.addEventListener('click', handleCategoryButtonClick);
+            });
+        }
+
+        // Handle search input
+        function handleSearch(event) {
+            currentSearchTerm = event.target.value.toLowerCase();
+            renderWorkshops();
+        }
+
+        // Handle category filter dropdown
+        function handleCategoryFilter(event) {
+            currentCategory = event.target.value;
+            updateCategoryButtons();
+            renderWorkshops();
+        }
+
+        // Handle category button clicks
+        function handleCategoryButtonClick(event) {
+            const category = event.target.dataset.category;
+            currentCategory = category;
+            updateCategoryButtons();
+            document.getElementById('categoryFilter').value = category;
+            renderWorkshops();
+        }
+
+        // Update active category button
+        function updateCategoryButtons() {
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.category === currentCategory) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        // Filter workshops based on current search and category
+        function filterWorkshops() {
+            return WORKSHOPS.filter(workshop => {
+                const matchesSearch = !currentSearchTerm || 
+                    workshop.title.toLowerCase().includes(currentSearchTerm) ||
+                    workshop.description.toLowerCase().includes(currentSearchTerm) ||
+                    workshop.tags.some(tag => tag.toLowerCase().includes(currentSearchTerm));
+                
+                const matchesCategory = currentCategory === 'all' || workshop.category === currentCategory;
+                
+                return matchesSearch && matchesCategory;
+            });
+        }
+
+        // Render workshops to the grid
+        function renderWorkshops() {
+            const filteredWorkshops = filterWorkshops();
+            const grid = document.getElementById('workshopsGrid');
+            
+            if (filteredWorkshops.length === 0) {
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 60px; color: white; font-size: 1.2rem;">No workshops found matching your criteria.</div>';
+                return;
+            }
+            
+            grid.innerHTML = filteredWorkshops.map(workshop => createWorkshopCard(workshop)).join('');
+        }
+
+        // Create individual workshop card HTML
+        function createWorkshopCard(workshop) {
+            const featuredBadge = workshop.featured ? '<div class="workshop-featured-badge">⭐ Featured</div>' : '';
+            const tagsHtml = workshop.tags.slice(0, 3).map(tag => `<span class="workshop-tag">${tag}</span>`).join('');
+            const extraTagsCount = workshop.tags.length > 3 ? `<span class="workshop-tag">+${workshop.tags.length - 3} more</span>` : '';
+            
+            return `
+                <div class="workshop-card">
+                    ${featuredBadge}
+                    <div class="workshop-header">
+                        <div class="workshop-icon">${workshop.icon}</div>
+                    </div>
+                    <div class="workshop-content">
+                        <div class="workshop-title-section">
+                            <h3 class="workshop-title">${workshop.title}</h3>
+                            <span class="difficulty-badge difficulty-${workshop.difficulty}">${workshop.difficulty}</span>
+                        </div>
+                        <p class="workshop-description">${workshop.description}</p>
+                        <div class="workshop-meta">
+                            <div class="meta-item">
+                                <svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <polyline points="12,6 12,12 16,14"/>
+                                </svg>
+                                <span>${workshop.duration}</span>
+                            </div>
+                            <div class="meta-item">
+                                <svg class="meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                    <circle cx="9" cy="7" r="4"/>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                </svg>
+                                <span>${workshop.participants}</span>
+                            </div>
+                        </div>
+                        <div class="workshop-tags">
+                            ${tagsHtml}
+                            ${extraTagsCount}
+                        </div>
+                        <div class="workshop-footer">
+                            <span class="workshop-date">Updated ${workshop.lastUpdated}</span>
+                            <button class="use-workshop-btn">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="7,10 12,15 17,10"/>
+                                    <line x1="12" y1="15" x2="12" y2="3"/>
+                                </svg>
+                                Use Workshop
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Update statistics
+        function updateStats() {
+            document.getElementById('totalWorkshops').textContent = WORKSHOPS.length;
+            document.getElementById('featuredWorkshops').textContent = WORKSHOPS.filter(w => w.featured).length;
+        }
+
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initializeApp);
+    </script>
+</body>
+</html>
